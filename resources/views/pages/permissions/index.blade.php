@@ -6,7 +6,6 @@
             <div id="kt_content_container" class="container-xxl">
                 <div class="card mb-5 mb-xl-10">
                     <div class="card-body pt-9 pb-0">
-
                     </div>
                 </div>
 

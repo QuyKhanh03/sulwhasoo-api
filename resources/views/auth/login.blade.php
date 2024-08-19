@@ -68,7 +68,7 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
-            $('#kt_sign_in_submit').on('click', function (e) {
+            $('body').on('click', '#kt_sign_in_submit', function (e) {
                 e.preventDefault();
 
                 var email = $('#email').val();

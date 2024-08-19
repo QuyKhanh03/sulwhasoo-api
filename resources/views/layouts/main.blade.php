@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <title>
-        {{ $title ?? 'Metronic - The World\'s #1 Selling Bootstrap Admin Template by KeenThemes' }}
+        {{ $title ?? 'Metronic' }}
     </title>
     <meta charset="utf-8" />
     <meta name="description" content="The most advanced Bootstrap 5 Admin Theme with 40 unique prebuilt layouts on Themeforest trusted by 100,000 beginners and professionals. Multi-demo, Dark Mode, RTL support and complete React, Angular, Vue, Asp.Net Core, Rails, Spring, Blazor, Django, Express.js, Node.js, Flask, Symfony & Laravel versions. Grab your copy now and get life-time updates for free." />
@@ -20,6 +20,7 @@
     <link href="{{ asset('theme/assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('theme/assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('theme/assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 <body id="kt_body" class="aside-enabled">
 <script>var defaultThemeMode = "light"; var themeMode; if ( document.documentElement ) { if ( document.documentElement.hasAttribute("data-bs-theme-mode")) { themeMode = document.documentElement.getAttribute("data-bs-theme-mode"); } else { if ( localStorage.getItem("data-bs-theme") !== null ) { themeMode = localStorage.getItem("data-bs-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-bs-theme", themeMode); }</script>
@@ -47,5 +48,29 @@
 <script src="{{ asset('theme/assets/js/custom/widgets.js') }}"></script>
 <script src="{{ asset('theme/assets/js/custom/apps/chat/chat.js') }}"></script>
 <script src="{{ asset('theme/assets/js/custom/utilities/modals/users-search.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+{!! Toastr::message() !!}
+
+@stack('scripts')
+
+<script>
+    $(document).ready(function() {
+        $('body').on('click', '.btn-sign-out', function(e) {
+            e.preventDefault();
+
+            //call to route logout
+            $.ajax({
+                url: "{{ route('logout') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    window.location.href = "{{ route('login') }}";
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

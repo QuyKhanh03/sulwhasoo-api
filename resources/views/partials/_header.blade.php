@@ -2,7 +2,7 @@
     <!--begin::Brand-->
     <div class="header-brand">
         <!--begin::Logo-->
-        <a href="index.html">
+        <a href="{{ route('dashboard') }}">
             <img alt="Logo" src="{{ asset('theme/assets/media/logos/default-dark.svg') }}" class="h-25px h-lg-25px"/>
         </a>
         <!--end::Logo-->

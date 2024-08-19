@@ -32,12 +32,15 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (HttpException $e, Request $request) {
             if ($e->getStatusCode() === 403) {
-                return response()->view('errors.403', [], 403);
+                return response()->view('pages.errors.403', [], 403);
             }
         });
-
-        $this->renderable(function (Throwable $e, Request $request) {
-            return response()->view('errors.500', [], 500);
+        $this->renderable(function (HttpException $e, Request $request) {
+            if ($e->getStatusCode() === 500) {
+                return response()->view('pages.errors.500', [], 500);
+            }
         });
+//
+
     }
 }

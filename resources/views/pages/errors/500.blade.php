@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <title>Metronic - The World's #1 Selling Bootstrap Admin Template by KeenThemes</title>
@@ -11,48 +12,59 @@
     <meta property="og:title" content="Metronic - The World's #1 Selling Bootstrap Admin Template by KeenThemes" />
     <meta property="og:url" content="https://keenthemes.com/metronic" />
     <meta property="og:site_name" content="Metronic by Keenthemes" />
-    <link rel="canonical" href="http://authentication/layouts/corporate/sign-in.html" />
+    <link rel="canonical" href="http://authentication/general/error-500.html" />
     <link rel="shortcut icon" href="{{ asset('theme/assets/media/logos/favicon.ico') }}" />
+    <!--begin::Fonts(mandatory for all pages)-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <!--end::Fonts-->
+    <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="{{ asset('theme/assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('theme/assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <script>// Frame-busting to prevent site from being loaded within a frame without permission (click-jacking) if (window.top != window.self) { window.top.location.replace(window.self.location.href); }</script>
 </head>
-<body id="kt_body" class="auth-bg">
+<!--begin::Body-->
+<body id="kt_body" class="auth-bg bgi-size-cover bgi-position-center bgi-no-repeat">
+<!--begin::Theme mode setup on page load-->
 <script>var defaultThemeMode = "light"; var themeMode; if ( document.documentElement ) { if ( document.documentElement.hasAttribute("data-bs-theme-mode")) { themeMode = document.documentElement.getAttribute("data-bs-theme-mode"); } else { if ( localStorage.getItem("data-bs-theme") !== null ) { themeMode = localStorage.getItem("data-bs-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-bs-theme", themeMode); }</script>
+<!--end::Theme mode setup on page load-->
+<!--begin::Main-->
+<!--begin::Root-->
 <div class="d-flex flex-column flex-root">
-    <div class="d-flex flex-column flex-lg-row flex-column-fluid">
-        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1">
-            @yield('content')
-            <div class="w-lg-500px d-flex flex-stack px-10 mx-auto">
-                <div class="d-flex fw-semibold text-primary fs-base gap-5">
-                    <a href="#" >Terms</a>
-                    <a href="#" >Plans</a>
-                    <a href="#" >Contact Us</a>
+    <!--begin::Page bg image-->
+    <style>body { background-image: url('{{ asset('theme/assets/media/auth/bg7.jpg') }}'); } [data-bs-theme="dark"] body { background-image: url('{{ asset('theme/assets/media/auth/bg7-dark.jpg') }}'); }</style>
+    <!--end::Page bg image-->
+    <!--begin::Authentication - Signup Welcome Message -->
+    <div class="d-flex flex-column flex-center flex-column-fluid">
+        <!--begin::Content-->
+        <div class="d-flex flex-column flex-center text-center p-10">
+            <!--begin::Wrapper-->
+            <div class="card card-flush w-lg-650px py-5">
+                <div class="card-body py-15 py-lg-20">
+                    <!--begin::Title-->
+                    <h1 class="fw-bolder fs-2qx text-gray-900 mb-4">System Error</h1>
+                    <!--end::Title-->
+                    <!--begin::Text-->
+                    <div class="fw-semibold fs-6 text-gray-500 mb-7">Something went wrong! Please try again later.</div>
+                    <!--end::Text-->
+                    <!--begin::Illustration-->
+                    <div class="mb-11">
+                        <img src="{{ asset('theme/assets/media/auth/500-error.png') }}" class="mw-100 mh-300px theme-light-show" alt="" />
+                        <img src="{{ asset('theme/assets/media/auth/500-error-dark.png') }}" class="mw-100 mh-300px theme-dark-show" alt="" />
+                    </div>
+                    <!--end::Illustration-->
+                    <!--begin::Link-->
+                    <div class="mb-0">
+                        <a href="{{ route('login') }}" class="btn btn-sm btn-primary">
+                            <span class="indicator-label">Back to Login</span>
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2" style="background-image: url({{ asset('theme/assets/media/misc/auth-bg.png') }})">
-            <div class="d-flex flex-column flex-center py-7 py-lg-15 px-5 px-md-15 w-100">
-                <a href="#" class="mb-0 mb-lg-12">
-                    <img alt="Logo" src="{{ asset('theme/assets/media/logos/custom-1.png') }}" class="h-60px h-lg-75px" />
-                </a>
-                <img class="d-none d-lg-block mx-auto w-275px w-md-50 w-xl-500px mb-10 mb-lg-20" src="{{ asset('theme/assets/media/misc/auth-screens.png') }}" alt="" />
-                <h1 class="d-none d-lg-block text-white fs-2qx fw-bolder text-center mb-7">Fast, Efficient and Productive</h1>
-                <div class="d-none d-lg-block text-white fs-base text-center">In this kind of post,
-                    <a href="#" class="opacity-75-hover text-warning fw-bold me-1">the blogger</a>introduces a person they’ve interviewed
-                    <br />and provides some background information about
-                    <a href="#" class="opacity-75-hover text-warning fw-bold me-1">the interviewee</a>and their
-                    <br />work following this is a transcript of the interview.</div>
             </div>
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.7.1.slim.js" ></script>
+<script>var hostUrl = "assets/";</script>
 <script src="{{ asset('theme/assets/plugins/global/plugins.bundle.js') }}"></script>
 <script src="{{ asset('theme/assets/js/scripts.bundle.js') }}"></script>
-{{--<script src="{{ asset('theme/assets/js/custom/authentication/sign-in/general.js') }}"></script>--}}
-
-@stack('scripts')
 </body>
 </html>
