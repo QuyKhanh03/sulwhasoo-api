@@ -91,7 +91,6 @@
                             _token: "{{ csrf_token() }}"
                         },
                         success: function (response) {
-                            // Call SweetAlert khi đăng nhập thành công
                             Swal.fire({
                                 title: 'Success!',
                                 text: 'You have successfully logged in!',
