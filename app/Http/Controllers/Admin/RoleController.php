@@ -5,17 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Yajra\DataTables\DataTables;
 
-class PermissionController extends Controller
+class RoleController extends Controller
 {
-    //get all permissions
-    public function getPermissions(Request $request)
+
+    public function getRole(Request $request)
     {
-        $data = Permission::all();
+        $data = Role::all();
         return DataTables::of($data)->addIndexColumn()
-
-
             ->addColumn('actions', function($row) {
                 $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'"  class=" btn btn-sm btn-danger btn-delete">Remove</a>';
                 $btn .= '  <a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn-sm btn btn-success btn-edit">Edit</a>';
@@ -36,8 +35,9 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $title = 'Permissions';
-        return view('pages.permissions.index', compact('title'));
+        $title = 'Roles';
+        $permissions = Permission::all();
+        return view('pages.roles.index', compact('title', 'permissions'));
     }
 
     /**
@@ -45,7 +45,7 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        return view('pages.permissions.create');
+        //
     }
 
     /**
@@ -53,14 +53,20 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
             'name' => 'required',
         ]);
-        Permission::create($request->all());
+        $role = Role::create(['name' => $request->name]);
+        $permissions = [];
+        foreach ($request->permissions as $permission) {
+            $permissions[] = Permission::findById($permission);
 
+        }
+        $role->syncPermissions($permissions);
         return response()->json([
             'success' => true,
-            'message' => 'Permission created successfully'
+            'message' => 'Role created successfully'
         ]);
     }
 
@@ -77,11 +83,13 @@ class PermissionController extends Controller
      */
     public function edit(string $id)
     {
-        $permission = Permission::find($id);
-        return response()->json([
-            'success' => true,
-            'data' => $permission
-        ]);
+        $role = Role::findById($id);
+        $permissions = [];
+        foreach ($role->permissions as $permission) {
+            $permissions[] = $permission->id;
+        }
+        $role->permissions = $permissions;
+        return response()->json(['role' => $role]);
     }
 
     /**
@@ -89,14 +97,19 @@ class PermissionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
-        Permission::find($id)->update($request->all());
+        $role = Role::findById($id);
+        $role->name = $request->name;
+        $role->save();
+
+        $permissions = [];
+        foreach ($request->permissions as $permission) {
+            $permissions[] = Permission::findById($permission);
+        }
+        $role->syncPermissions($permissions);
 
         return response()->json([
             'success' => true,
-            'message' => 'Permission updated successfully'
+            'message' => 'Role updated successfully'
         ]);
     }
 
@@ -105,11 +118,19 @@ class PermissionController extends Controller
      */
     public function destroy(string $id)
     {
-        Permission::find($id)->delete();
+        $role = Role::findById($id);
+
+        // Revoke all permissions associated with this role
+        foreach ($role->permissions as $permission) {
+            $role->revokePermissionTo($permission);
+        }
+
+        // Delete the role
+        $role->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Permission deleted successfully'
+            'message' => 'Role deleted successfully'
         ]);
     }
 }
