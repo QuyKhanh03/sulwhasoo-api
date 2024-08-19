@@ -64,9 +64,13 @@
                         <div class="menu-item px-5 my-1">
                             <a href="{{ route('user.account') }}" class="menu-link px-5">Account Settings</a>
                         </div>
-                        <div class="menu-item px-5">
-                            <a href="javascript:void(0)" class="menu-link px-5 btn-sign-out">Sign Out</a>
-                        </div>
+
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <div class="menu-item px-5">
+                                <button style="background: no-repeat" type="submit" class="border-0  menu-link px-5">Sign Out</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

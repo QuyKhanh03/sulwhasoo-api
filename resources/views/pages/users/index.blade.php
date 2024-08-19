@@ -29,10 +29,10 @@
                         <table class="table table-row-dashed table-row-gray-300 gy-7" id="table-users">
                             <thead>
                                 <tr>
-{{--                                    <th></th>--}}
+                                    <th>Avatar</th>
                                     <th>Name</th>
                                     <th>Email</th>
-{{--                                    <th>Roles</th>--}}
+                                    <th>Roles</th>
                                     <th>Created At</th>
                                     <th>Updated At</th>
                                     <th>Actions</th>
@@ -100,10 +100,10 @@
                     }
                 },
                 columns: [
-                    // {data: 'avatar', name: 'avatar', orderable: false, searchable: false},
+                    {data: 'avatar', name: 'avatar', orderable: false, searchable: false},
                     {data: 'name', name: 'name'},
                     {data: 'email', name: 'email'},
-                    // {data: 'roles', name: 'roles'},
+                    {data: 'roles', name: 'roles'},
                     {data: 'created_at', name: 'created_at'},
                     {data: 'updated_at', name: 'updated_at'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false}

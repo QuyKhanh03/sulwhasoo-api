@@ -8,7 +8,7 @@
             id="#kt_aside_menu" data-kt-menu="true">
 
             <div class="menu-item">
-                <a class="menu-link active" href="{{ route('dashboard') }}">
+                <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                     <span class="menu-icon">
                         <i class="bi bi-house fs-3"></i>
                     </span>
@@ -19,19 +19,42 @@
                 </a>
             </div>
 
-
-            {{-- users manager--}}
-
-            <div class="menu-item">
-                <a class="menu-link" href="{{ route('users.index') }}">
-                    <span class="menu-icon">
-                        <i class="bi bi-person fs-3"></i>
-                    </span>
-                    <span class="menu-title {{ request()->routeIs('users.*') ? 'fw-bold' : '' }}">
-                        Users
-                    </span>
-                </a>
-
+            <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ request()->routeIs('users.index') || request()->routeIs('roles.index') || request()->routeIs('permissions.index') ? 'here show' : '' }}">
+    <span class="menu-link">
+        <span class="menu-icon">
+            <span class="ki-duotone ki-abstract-28 fs-2">
+                <span class="path1"></span><span class="path2"></span>
+            </span>
+        </span>
+        <span class="menu-title">User Management</span>
+        <span class="menu-arrow"></span>
+    </span>
+                <div class="menu-sub menu-sub-accordion" style="display: {{ request()->routeIs('users.index') || request()->routeIs('roles.index') || request()->routeIs('permissions.index') ? 'block' : 'none' }}; overflow: hidden;">
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                <span class="menu-bullet">
+                    <span class="bullet bullet-dot"></span>
+                </span>
+                            <span class="menu-title">Users</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+                <span class="menu-bullet">
+                    <span class="bullet bullet-dot"></span>
+                </span>
+                            <span class="menu-title">Roles</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs('permissions.index') ? 'active' : '' }}" href="{{ route('permissions.index') }}">
+                <span class="menu-bullet">
+                    <span class="bullet bullet-dot"></span>
+                </span>
+                            <span class="menu-title">Permissions</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

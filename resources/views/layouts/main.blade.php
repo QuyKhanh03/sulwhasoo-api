@@ -56,23 +56,23 @@
 @stack('scripts')
 
 <script>
-    $(document).ready(function() {
-        $('body').on('click', '.btn-sign-out', function(e) {
-            e.preventDefault();
+    {{--$(document).ready(function() {--}}
+    {{--    $('body').on('click', '.btn-sign-out', function(e) {--}}
+    {{--        e.preventDefault();--}}
 
-            //call to route logout
-            $.ajax({
-                url: "{{ route('logout') }}",
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(response) {
-                    window.location.href = "{{ route('login') }}";
-                }
-            });
-        });
-    });
+    {{--        //call to route logout--}}
+    {{--        $.ajax({--}}
+    {{--            url: "{{ route('logout') }}",--}}
+    {{--            type: "POST",--}}
+    {{--            data: {--}}
+    {{--                _token: "{{ csrf_token() }}"--}}
+    {{--            },--}}
+    {{--            success: function(response) {--}}
+    {{--                window.location.reload();--}}
+    {{--            }--}}
+    {{--        });--}}
+    {{--    });--}}
+    {{--});--}}
 </script>
 </body>
 </html>

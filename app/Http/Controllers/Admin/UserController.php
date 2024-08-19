@@ -14,43 +14,46 @@ class UserController extends Controller
     public function getUsers(Request $request)
     {
         if ($request->ajax()) {
-            $data = User::all();
+            $data = User::with('roles')->get(); // Eager load roles relationship
             return DataTables::of($data)->addIndexColumn()
 
-//                //avatar
-//                ->addColumn('avatar', function ($row) {
-//                    if (empty($row->avatar)) {
-//                        $avatarSrc = asset('theme/assets/media/svg/avatars/blank.svg');
-//                    } else {
-//                        $avatarSrc = asset($row->avatar);
-//                    }
-//                    $avatar = '<img src="' . $avatarSrc . '" width="50" height="50" class="img-circle" />';
-//                    return $avatar;
-//                })
-//
-//                //roles
-//                ->addColumn('roles', function ($row) {
-//                    $roles = '';
-//                    foreach ($row->roles as $role) {
-//                        $roles .= '<span class="badge badge-primary">' . $role->name . '</span>';
-//                    }
-//                    return $roles;
-//                })
+                // Avatar
+                ->addColumn('avatar', function ($row) {
+                    $avatarSrc = ($row->avatar != null) ? $row->avatar : asset('theme/assets/media/svg/avatars/blank.svg');
+                    return '<img src="' . $avatarSrc . '" width="50" height="50" class="img-circle" />';
+                })
+
+                // Roles
+                ->addColumn('roles', function ($row) {
+                    if($row->roles->isEmpty()) {
+                        return '<span class="badge badge-danger">No Role</span>';
+                    }
+                    return $row->roles->map(function ($role) {
+                        return '<span class="badge badge-primary">' . $role->name . '</span>';
+                    })->implode(' ');
+                })
+
+                // Actions
                 ->addColumn('actions', function ($row) {
-                    $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '"  class=" btn btn-danger btn-delete">Remove</a>';
-                    $btn .= '  <a href="javascript:void(0)" data-id="' . $row->id . '" class="edit btn btn-success btn-edit">Edit</a>';
+                    $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-danger btn-delete">Remove</a>';
+                    $btn .= '  <a href="javascript:void(0)" data-id="' . $row->id . '" class="edit btn-sm btn btn-success btn-edit">Edit</a>';
                     return $btn;
                 })
+
+                // Created At
                 ->addColumn('created_at', function ($row) {
                     return date('d-m-Y', strtotime($row->created_at));
                 })
+
+                // Updated At
                 ->addColumn('updated_at', function ($row) {
                     return date('d-m-Y', strtotime($row->updated_at));
                 })
-                ->rawColumns(['actions', 'created_at', 'updated_at'])
+                ->rawColumns(['avatar', 'roles', 'actions', 'created_at', 'updated_at'])
                 ->make(true);
         }
     }
+
 
     /**
      * Display a listing of the resource.
@@ -81,7 +84,31 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+        ]);
+
+        $model = new User();
+
+        $model->fill($request->except(['avatar', 'password']));
+        if ($request->hasFile('avatar')) {
+            $model->avatar = uploadImage($request->file('avatar'));
+        }
+        $model->password = bcrypt($request->password);
+
+        if($request->has('roles')) {
+            $roles = [];
+            foreach($request->roles as $role) {
+                $roles[] = $role['name'];
+            }
+            $model->assignRole($roles);
+        }
+
+        $model->save();
+
+        return response()->json(['success' => true, 'message' => 'User created successfully']);
     }
 
     /**
@@ -97,7 +124,8 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $model = User::with('roles')->find($id);
+        return response()->json(['success' => true, 'data' => $model]);
     }
 
     /**
@@ -105,7 +133,29 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . $id,
+        ]);
 
+        $model = User::find($id);
+
+        $model->fill($request->except(['avatar', 'password']));
+        if ($request->hasFile('avatar')) {
+            $model->avatar = uploadImage($request->file('avatar'));
+        }
+
+        if($request->has('roles')) {
+            $roles = [];
+            foreach($request->roles as $role) {
+                $roles[] = $role['name'];
+            }
+            $model->syncRoles($roles);
+        }
+
+        $model->save();
+
+        return response()->json(['success' => true, 'message' => 'User updated successfully']);
     }
 
     /**
@@ -113,7 +163,15 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $model = User::find($id);
+        $model->delete();
+
+        // check if user has roles and remove them
+        if($model->roles->isNotEmpty()) {
+            $model->removeRole($model->roles->pluck('name')->toArray());
+        }
+
+        return response()->json(['success' => true, 'message' => 'User deleted successfully']);
     }
 
 
@@ -146,6 +204,8 @@ class UserController extends Controller
         $title = 'Account';
         return view('pages.account.index', compact('title'));
     }
+
+
 
 
 }
