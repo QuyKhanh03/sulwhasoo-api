@@ -13,21 +13,41 @@ class UserController extends Controller
 
     public function getUsers(Request $request)
     {
-        if($request->ajax()){
+        if ($request->ajax()) {
             $data = User::all();
             return DataTables::of($data)->addIndexColumn()
-                ->addColumn('action', function($row) {
-                    $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'"  class=" btn btn-danger btn-delete">Remove</a>';
-                    $btn .= '  <a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-success btn-edit">Edit</a>';
+
+//                //avatar
+//                ->addColumn('avatar', function ($row) {
+//                    if (empty($row->avatar)) {
+//                        $avatarSrc = asset('theme/assets/media/svg/avatars/blank.svg');
+//                    } else {
+//                        $avatarSrc = asset($row->avatar);
+//                    }
+//                    $avatar = '<img src="' . $avatarSrc . '" width="50" height="50" class="img-circle" />';
+//                    return $avatar;
+//                })
+//
+//                //roles
+//                ->addColumn('roles', function ($row) {
+//                    $roles = '';
+//                    foreach ($row->roles as $role) {
+//                        $roles .= '<span class="badge badge-primary">' . $role->name . '</span>';
+//                    }
+//                    return $roles;
+//                })
+                ->addColumn('actions', function ($row) {
+                    $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '"  class=" btn btn-danger btn-delete">Remove</a>';
+                    $btn .= '  <a href="javascript:void(0)" data-id="' . $row->id . '" class="edit btn btn-success btn-edit">Edit</a>';
                     return $btn;
                 })
-                ->addColumn('created_at', function($row) {
+                ->addColumn('created_at', function ($row) {
                     return date('d-m-Y', strtotime($row->created_at));
                 })
-                ->addColumn('updated_at', function($row) {
+                ->addColumn('updated_at', function ($row) {
                     return date('d-m-Y', strtotime($row->updated_at));
                 })
-                ->rawColumns(['action', 'created_at', 'updated_at'])
+                ->rawColumns(['actions', 'created_at', 'updated_at'])
                 ->make(true);
         }
     }
@@ -37,7 +57,15 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $title = 'Users';
+            return view('pages.users.index', compact('title'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -93,7 +121,7 @@ class UserController extends Controller
     public function account(Request $request)
     {
 
-        if($request->isMethod('post')){
+        if ($request->isMethod('post')) {
 
             $request->validate([
                 'name' => 'required',
@@ -102,21 +130,21 @@ class UserController extends Controller
             ]);
 
             $model = auth()->user();
-            $model->fill($request->except(['avatar','password']));
-            if($request->hasFile('avatar')){
+            $model->fill($request->except(['avatar', 'password']));
+            if ($request->hasFile('avatar')) {
                 $model->avatar = uploadImage($request->file('avatar'));
             }
 
-            if($request->filled('password')){
+            if ($request->filled('password')) {
                 $model->password = bcrypt($request->password);
             }
 
             $model->save();
             Toastr::success('Account updated successfully');
-            return response()->json(['success'=>true,'message'=>'Account updated successfully']);
+            return response()->json(['success' => true, 'message' => 'Account updated successfully']);
         }
         $title = 'Account';
-        return view('pages.account.index',compact('title'));
+        return view('pages.account.index', compact('title'));
     }
 
 

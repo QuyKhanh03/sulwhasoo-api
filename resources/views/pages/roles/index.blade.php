@@ -67,7 +67,7 @@
                     <input id="id" name="id" value="" type="hidden">
                     <div class="modal-body">
                         <div class="mb-10 ">
-                            <label for="name" class="form-label">Role Name</label>
+                            <label for="name" class="form-label required">Role Name</label>
                             <input type="text" class="form-control" id="name" name="name"
                                    placeholder="Enter role name"/>
                             <span class="text-danger error-text name_error"></span>
@@ -233,6 +233,11 @@
 
                                 $('#formRole')[0].reset();
                                 $('#table-role').DataTable().ajax.reload();
+                            });
+                        }else {
+                            toastr.error(response.message);
+                            $.each(response.message, function (key, value) {
+                                $('.' + key + '_error').text(value);
                             });
                         }
                     },

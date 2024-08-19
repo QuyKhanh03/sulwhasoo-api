@@ -13,21 +13,28 @@ class RoleController extends Controller
 
     public function getRole(Request $request)
     {
-        $data = Role::all();
-        return DataTables::of($data)->addIndexColumn()
-            ->addColumn('actions', function($row) {
-                $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'"  class=" btn btn-sm btn-danger btn-delete">Remove</a>';
-                $btn .= '  <a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn-sm btn btn-success btn-edit">Edit</a>';
-                return $btn;
-            })
-            ->addColumn('created_at', function($row) {
-                return date('d-m-Y', strtotime($row->created_at));
-            })
-            ->addColumn('updated_at', function($row) {
-                return date('d-m-Y', strtotime($row->updated_at));
-            })
-            ->rawColumns(['actions', 'created_at', 'updated_at'])
-            ->make(true);
+        try {
+            $data = Role::all();
+            return DataTables::of($data)->addIndexColumn()
+                ->addColumn('actions', function($row) {
+                    $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'"  class=" btn btn-sm btn-danger btn-delete">Remove</a>';
+                    $btn .= '  <a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn-sm btn btn-success btn-edit">Edit</a>';
+                    return $btn;
+                })
+                ->addColumn('created_at', function($row) {
+                    return date('d-m-Y', strtotime($row->created_at));
+                })
+                ->addColumn('updated_at', function($row) {
+                    return date('d-m-Y', strtotime($row->updated_at));
+                })
+                ->rawColumns(['actions', 'created_at', 'updated_at'])
+                ->make(true);
+        }catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -35,9 +42,16 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $title = 'Roles';
-        $permissions = Permission::all();
-        return view('pages.roles.index', compact('title', 'permissions'));
+        try {
+            $title = 'Roles';
+            $permissions = Permission::all();
+            return view('pages.roles.index', compact('title', 'permissions'));
+        }catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -83,13 +97,20 @@ class RoleController extends Controller
      */
     public function edit(string $id)
     {
-        $role = Role::findById($id);
-        $permissions = [];
-        foreach ($role->permissions as $permission) {
-            $permissions[] = $permission->id;
+        try {
+            $role = Role::findById($id);
+            $permissions = [];
+            foreach ($role->permissions as $permission) {
+                $permissions[] = $permission->id;
+            }
+            $role->permissions = $permissions;
+            return response()->json(['role' => $role]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
-        $role->permissions = $permissions;
-        return response()->json(['role' => $role]);
     }
 
     /**
@@ -118,19 +139,26 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        $role = Role::findById($id);
+        try {
+            $role = Role::findById($id);
 
-        // Revoke all permissions associated with this role
-        foreach ($role->permissions as $permission) {
-            $role->revokePermissionTo($permission);
+            // Revoke all permissions associated with this role
+            foreach ($role->permissions as $permission) {
+                $role->revokePermissionTo($permission);
+            }
+
+            // Delete the role
+            $role->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Role deleted successfully'
+            ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
-
-        // Delete the role
-        $role->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Role deleted successfully'
-        ]);
     }
 }

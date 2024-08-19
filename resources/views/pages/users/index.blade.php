@@ -1,5 +1,13 @@
 @extends('layouts.main')
 
+@push('styles')
+    <style>
+        #modalUser .modal-dialog {
+            max-width: 1000px;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
         <div class="post d-flex flex-column-fluid" id="kt_post">
@@ -7,7 +15,7 @@
                 <div class="card card-flush mb-5 mb-xl-10">
                     <div class="card-header">
                         <div class="card-title col d-flex justify-content-between ">
-                            <h2 class="mb-0">Permissions</h2>
+                            <h2 class="mb-0">Users</h2>
                             <div class="col"></div>
                             <div class="col-3 mx-3">
                                 <input type="text" class="form-control form-control-solid " id="search" placeholder="Search"/>
@@ -18,30 +26,29 @@
                         </div>
                     </div>
                     <div class="card-body pt-9 pb-0">
-                        <table class="table table-row-dashed table-row-gray-300 gy-7" id="table-permissions">
+                        <table class="table table-row-dashed table-row-gray-300 gy-7" id="table-users">
                             <thead>
-                            <tr class="fw-bolder fs-6 text-gray-800">
-                                <th>Permission</th>
-                                <th>Guard Name</th>
-                                <th>Created At</th>
-                                <th>Updated At</th>
-                                <th>Actions</th>
-                            </tr>
+                                <tr>
+{{--                                    <th></th>--}}
+                                    <th>Name</th>
+                                    <th>Email</th>
+{{--                                    <th>Roles</th>--}}
+                                    <th>Created At</th>
+                                    <th>Updated At</th>
+                                    <th>Actions</th>
+                                </tr>
                             </thead>
-                            <tbody>
-
-                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="modalPermission">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+    <div class="modal fade" id="modalUser">
+        <div class="modal-dialog modal-dialog-centered ">
             <div class="modal-content">
-                <div class="modal-header" id="modalPermissionHeader">
-                    <h2 class="fw-bolder">Create Permission</h2>
+                <div class="modal-header" id="modalUserHeader">
+                    <h2 class="fw-bolder">Create User</h2>
                     <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
                          aria-label="Close">
                         <span class="svg-icon svg-icon-1">
@@ -54,16 +61,11 @@
                         </span>
                     </div>
                 </div>
-                <form id="formPermission" method="post">
+                <form id="formUser" method="post">
                     @csrf
                     <input id="id" name="id" value="" type="hidden">
                     <div class="modal-body">
-                        <div class="mb-10">
-                            <label for="name" class="form-label required">Permission Name</label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                   placeholder="Enter permission name"/>
-                            <span class="text-danger error-text name_error"></span>
-                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Close</button>
@@ -79,18 +81,29 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
-            var table = $('#table-permissions').DataTable({
+
+            $('#check_all_permissions').click(function () {
+                if ($(this).is(':checked')) {
+                    $('input[type=checkbox]').prop('checked', true);
+                } else {
+                    $('input[type=checkbox]').prop('checked', false);
+                }
+            });
+
+            var table = $('#table-users').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('get.permissions') }}",
+                    url: "{{ route('get.users') }}",
                     data: function (d) {
                         d.search.value = $('#search').val();
                     }
                 },
                 columns: [
+                    // {data: 'avatar', name: 'avatar', orderable: false, searchable: false},
                     {data: 'name', name: 'name'},
-                    {data: 'guard_name', name: 'guard_name'},
+                    {data: 'email', name: 'email'},
+                    // {data: 'roles', name: 'roles'},
                     {data: 'created_at', name: 'created_at'},
                     {data: 'updated_at', name: 'updated_at'},
                     {data: 'actions', name: 'actions', orderable: false, searchable: false}
@@ -100,8 +113,14 @@
             });
 
             $('.btn-create').click(function () {
-                $('#modalPermission').modal('show');
-                $('#modalPermissionHeader h2').text('Create Permission');
+
+                //reset form
+                $('#formUser')[0].reset();
+                $('#id').val('');
+                $('#check_all_permissions').prop('checked', false);
+                $('#modalRole').modal('show');
+                $('#modalRoleHeader h2').text('Create Role');
+
             });
             $('#search').on('keyup', function () {
                 var value = this.value;
@@ -109,21 +128,28 @@
             });
             $('body').on('click', '.btn-edit', function () {
                 const id = $(this).data('id');
-                const url = "{{ route('permissions.edit', ':id') }}".replace(':id', id);
+                const url = "{{ route('roles.edit', ':id') }}".replace(':id', id);
                 $.ajax({
                     url: url,
                     data: {id: id},
                     success: function (response) {
-                        $('#modalPermission').modal('show');
-                        $('#modalPermissionHeader h2').text('Edit Permission');
-                        $('#id').val(response.data.id);
-                        $('#name').val(response.data.name);
+
+                        //reset form
+                        $('#formUser')[0].reset();
+
+                        $('#modalRole').modal('show');
+                        $('#modalRoleHeader h2').text('Edit Permission');
+                        $('#id').val(response.role.id);
+                        $('#name').val(response.role.name);
+                        $.each(response.role.permissions, function (key, value) {
+                            $('#permission_' + value.id).prop('checked', true);
+                        });
                     }
                 });
             });
             $('body').on('click', '.btn-delete', function () {
                 const id = $(this).data('id');
-                const url = "{{ route('permissions.destroy', ':id') }}".replace(':id', id);
+                const url = "{{ route('roles.destroy', ':id') }}".replace(':id', id);
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "You won't be able to revert this!",
@@ -148,7 +174,7 @@
                                         'success'
                                     ).then(function () {
                                         toastr.success(response.message);
-                                        $('#table-permissions').DataTable().ajax.reload();
+                                        $('#table-role').DataTable().ajax.reload();
                                     });
                                 }
                             }
@@ -157,10 +183,10 @@
                 });
             });
 
-            $('#formPermission').submit(function (e) {
+            $('#formUser').submit(function (e) {
                 e.preventDefault();
                 const id = $('#id').val();
-                let url = id ? "{{ route('permissions.update', ':id') }}" : "{{ route('permissions.store') }}";
+                let url = id ? "{{ route('roles.update', ':id') }}" : "{{ route('roles.store') }}";
                 url = url.replace(':id', id);
                 const method = id ? 'patch' : 'POST';
                 $.ajax({
@@ -170,7 +196,7 @@
                     success: function (response) {
                         if(response.success) {
                             //sweet alert
-                            $('#modalPermission').modal('hide');
+                            $('#modalRole').modal('hide');
                             Swal.fire({
                                 title: 'Success!',
                                 text: response.message,
@@ -179,11 +205,14 @@
                             }).then(function () {
                                 toastr.success(response.message);
 
-                                $('#formPermission')[0].reset();
-                                $('#table-permissions').DataTable().ajax.reload();
+                                $('#formUser')[0].reset();
+                                $('#table-users').DataTable().ajax.reload();
                             });
                         }else {
                             toastr.error(response.message);
+                            $.each(response.message, function (key, value) {
+                                $('.' + key + '_error').text(value);
+                            });
                         }
                     },
                     error: function (xhr) {
