@@ -9,7 +9,9 @@
                         <div class="d-flex flex-wrap flex-sm-nowrap">
                             <div class="me-7 mb-4">
                                 <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
-                                    <img src="{{ auth()->user()->avatar ?? asset('theme/assets/media/svg/avatars/blank.svg') }}" alt="image"/>
+                                    <img
+                                        src="{{ auth()->user()->avatar ?? asset('theme/assets/media/svg/avatars/blank.svg') }}"
+                                        alt="image"/>
                                     <div
                                         class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px"></div>
                                 </div>
@@ -224,6 +226,8 @@
             $('#kt_account_profile_details_form').submit(function (e) {
                 e.preventDefault();
                 // Hiển thị "Please wait..." và ẩn label
+                //disable button
+                $('#kt_account_profile_details_submit').prop('disabled', true);
                 $('#kt_account_profile_details_submit').find('.indicator-progress').show();
                 $('#kt_account_profile_details_submit').find('.indicator-label').hide();
 
@@ -236,7 +240,8 @@
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        if(data.success) {
+                        if (data.success) {
+                            $('#kt_account_profile_details_submit').prop('disabled', false);
                             $('#kt_account_profile_details_submit').find('.indicator-progress').hide();
                             $('#kt_account_profile_details_submit').find('.indicator-label').show();
                             Swal.fire({
@@ -245,7 +250,7 @@
                                 icon: 'success',
                                 confirmButtonText: 'Ok'
                             });
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 window.location.reload();
                             }, 2000);
 
