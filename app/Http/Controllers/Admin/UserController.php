@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 use Yajra\DataTables\DataTables;
 
 class UserController extends Controller
@@ -33,6 +34,15 @@ class UserController extends Controller
                     })->implode(' ');
                 })
 
+                //status
+                ->addColumn('status', function ($row) {
+                    if ($row->status == 1) {
+                        return '<span class="badge badge-success">Active</span>';
+                    } else {
+                        return '<span class="badge badge-danger">Inactive</span>';
+                    }
+                })
+
                 // Actions
                 ->addColumn('actions', function ($row) {
                     $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-sm btn-danger btn-delete">Remove</a>';
@@ -49,7 +59,7 @@ class UserController extends Controller
                 ->addColumn('updated_at', function ($row) {
                     return date('d-m-Y', strtotime($row->updated_at));
                 })
-                ->rawColumns(['avatar', 'roles', 'actions', 'created_at', 'updated_at'])
+                ->rawColumns(['avatar', 'roles', 'actions', 'created_at', 'updated_at','status'])
                 ->make(true);
         }
     }
@@ -62,7 +72,8 @@ class UserController extends Controller
     {
         try {
             $title = 'Users';
-            return view('pages.users.index', compact('title'));
+            $roles = Role::all();
+            return view('pages.users.index', compact('title', 'roles'));
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -100,12 +111,12 @@ class UserController extends Controller
 
         if($request->has('roles')) {
             $roles = [];
-            foreach($request->roles as $role) {
-                $roles[] = $role['name'];
+            foreach ($request->roles as $role) {
+                $roles[] = Role::findById($role);
             }
             $model->assignRole($roles);
         }
-
+        $model->role_name = "admin";
         $model->save();
 
         return response()->json(['success' => true, 'message' => 'User created successfully']);
@@ -145,14 +156,18 @@ class UserController extends Controller
             $model->avatar = uploadImage($request->file('avatar'));
         }
 
+        if($request->filled('password')) {
+            $model->password = bcrypt($request->password);
+        }
+
         if($request->has('roles')) {
             $roles = [];
-            foreach($request->roles as $role) {
-                $roles[] = $role['name'];
+            foreach ($request->roles as $role) {
+                $roles[] = Role::findById($role);
             }
             $model->syncRoles($roles);
         }
-
+        $model->role_name = "admin";
         $model->save();
 
         return response()->json(['success' => true, 'message' => 'User updated successfully']);
@@ -165,12 +180,6 @@ class UserController extends Controller
     {
         $model = User::find($id);
         $model->delete();
-
-        // check if user has roles and remove them
-        if($model->roles->isNotEmpty()) {
-            $model->removeRole($model->roles->pluck('name')->toArray());
-        }
-
         return response()->json(['success' => true, 'message' => 'User deleted successfully']);
     }
 

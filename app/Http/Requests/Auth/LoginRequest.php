@@ -41,6 +41,15 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $user = Auth::getProvider()->retrieveByCredentials($this->only('email', 'password'));
+
+        // Check if the user exists and their status is 0
+        if ($user && $user->status == 0) {
+            throw ValidationException::withMessages([
+                'email' => 'Your account is inactive. Please contact support.',
+            ]);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 

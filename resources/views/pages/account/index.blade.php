@@ -43,7 +43,7 @@
                                                     <span class="path3"></span>
                                                 </i>
                                                 @if(auth()->check())
-                                                    {{ auth()->user()->role_name }}
+                                                    {{ auth()->user()->roles->first()->name }}
                                                 @endif
                                             </a>
 
