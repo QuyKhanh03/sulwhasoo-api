@@ -79,12 +79,13 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Category::query()->create([
-            'name' => $request->name,
-            'slug' => createSlug($request->name),
-            'parent_id' => $request->parent_id,
-        ]);
-
+        $model = new Category();
+        $model->fill($request->except(['slug']));
+        $model->slug = createSlug($request->name);
+        if($request->has('parent_id')) {
+            $model->parent_id = $request->parent_id;
+        }
+        $model->save();
         return response()->json(
             [
                 'success' => true,
@@ -107,7 +108,13 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::find($id);
+        return response()->json(
+            [
+                'success' => true,
+                'category' => $category
+            ]
+        );
     }
 
     /**
@@ -115,7 +122,23 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $model = Category::find($id);
+        $model->fill($request->except(['slug']));
+        $model->slug = createSlug($request->name);
+        if($request->has('parent_id')) {
+            $model->parent_id = $request->parent_id;
+        }
+        $model->save();
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Category updated successfully'
+            ]
+        );
     }
 
     /**
@@ -123,6 +146,13 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $model = Category::find($id);
+        $model->delete();
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Category deleted successfully'
+            ]
+        );
     }
 }

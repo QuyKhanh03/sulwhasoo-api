@@ -134,6 +134,61 @@
                 $('#formCategory').trigger('reset');
             });
 
+
+            // Edit Category
+            $(document).on('click', '.btn-edit', function () {
+                const id = $(this).data('id');
+                $.ajax({
+                    url: "{{ route('categories.edit', ':id') }}".replace(':id', id),
+                    type: 'GET',
+                    success: function (response) {
+                        $('#modalCategory').modal('show');
+                        $('#modalCategoryHeader h2').text('Edit Category');
+                        $('#id').val(response.category.id);
+                        $('#name').val(response.category.name);
+                        $('#parent').val(response.category.parent_id).trigger('change');
+                    }
+                });
+            });
+
+            // Delete Category
+            $('body').on('click', '.btn-delete', function () {
+                const id = $(this).data('id');
+                const url = "{{ route('categories.destroy', ':id') }}".replace(':id', id);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            method: 'DELETE',
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        response.message,
+                                        'success'
+                                    ).then(function () {
+                                        toastr.success(response.message);
+                                        table.ajax.reload();
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+
             $('#formCategory').submit(function (e) {
                 e.preventDefault();
                 const id = $('#id').val();
