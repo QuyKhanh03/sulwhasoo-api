@@ -127,6 +127,7 @@
             });
 
             $('.btn-create').click(function () {
+                loadCategories();
                 $('#modalCategory').modal('show');
                 $('#modalCategoryHeader h2').text('Create Category');
                 $('#id').val('');
@@ -142,6 +143,7 @@
                     url: "{{ route('categories.edit', ':id') }}".replace(':id', id),
                     type: 'GET',
                     success: function (response) {
+                        loadCategories();
                         $('#modalCategory').modal('show');
                         $('#modalCategoryHeader h2').text('Edit Category');
                         $('#id').val(response.category.id);
@@ -180,6 +182,7 @@
                                     ).then(function () {
                                         toastr.success(response.message);
                                         table.ajax.reload();
+                                        loadCategories();
                                     });
                                 }
                             }
